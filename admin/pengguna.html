@@ -16,7 +16,7 @@
   <script src="../js/data.js"></script>
   <script src="admin.js"></script>
   <script>
-    var q = '', pr = 'semua';
+    var q = '', pr = 'semua', LIVE = false, PR = {}, TK = {}, ON = {}, OFT = {};
 
     async function init(b) {
       b.innerHTML = '<p class="mut">Memuat pengguna…</p>';
@@ -44,6 +44,34 @@
       $('uq').oninput = function () { q = this.value; rows(); };
       $('pf').onchange = function () { pr = this.value; rows(); };
       rows();
+      live();
+    }
+
+    function stat(id) {
+      if (C.blk[id] === true) return '<span class="st b">Diblokir</span>';
+      if (ON[id]) return '<span class="st"><i class="dot"></i>Aktif</span>';
+      var t = +TK[id] || +(C.users[id] || {}).terakhirLogin || 0;
+      return '<span class="st off">Offline</span>' + (t ? '<small class="ls">' + lalu(t) + '</small>' : '');
+    }
+    function segarkan() {
+      document.querySelectorAll('[data-st]').forEach(function (td) { td.innerHTML = stat(td.dataset.st); });
+    }
+    function live() {
+      if (LIVE) return;
+      LIVE = true;
+      var galat = function () { };
+      F.onValue(R('presence'), function (s) {
+        PR = s.val() || {};
+        Object.keys(C.users).forEach(function (id) {
+          var on = !!PR[id] && Object.keys(PR[id]).length > 0;
+          if (on) { clearTimeout(OFT[id]); OFT[id] = 0; ON[id] = true; }
+          else if (ON[id] && !OFT[id]) OFT[id] = setTimeout(function () { ON[id] = false; OFT[id] = 0; segarkan(); }, 4000);
+        });
+        segarkan();
+      }, galat);
+      F.onValue(R('terakhir'), function (s) { TK = s.val() || {}; segarkan(); }, galat);
+      F.onValue(R('blokir'), function (s) { C.blk = s.val() || {}; rows(); }, galat);
+      setInterval(segarkan, 30000);
     }
 
     function rows() {
@@ -57,10 +85,10 @@
 
       $('cnt').textContent = ids.length + ' dari ' + semua.length + ' pengguna';
       $('ur').innerHTML = ids.map(function (id) {
-        var u = C.users[id] || {}, me = id == U.uid, ad = C.adm[id] === true, bl = C.blk[id] === true;
+        var u = C.users[id] || {}, me = id == U.uid, ad = C.adm[id] === true;
         return '<tr><td><div class="nm"><i class="av">' + esc(String(u.nama || '?').charAt(0).toUpperCase()) + '</i><b>' + esc(u.nama || 'Tanpa nama') + (me ? ' <span class="mut s">(kamu)</span>' : '') + '</b></div></td>' +
           '<td>' + esc(u.email || '-') + '</td><td><span class="pill' + (ad ? ' a' : '') + '">' + (ad ? 'Admin' : 'Siswa') + '</span></td>' +
-          '<td><span class="st' + (bl ? ' b' : '') + '">' + (bl ? 'Diblokir' : 'Aktif') + '</span></td>' +
+          '<td data-st="' + id + '">' + stat(id) + '</td>' +
           '<td class="ac"><button class="ib" data-ua="detail" data-id="' + id + '" aria-label="Kelola pengguna">' + ic('pencil') + '</button>' +
           (me ? '' : '<button class="ib red" data-ua="hapus" data-id="' + id + '" aria-label="Hapus pengguna">' + ic('trash') + '</button>') + '</td></tr>';
       }).join('') || '<tr><td colspan="5" class="empty">Tidak ada pengguna.</td></tr>';
@@ -98,7 +126,7 @@
           var b = C.blk[id] === true;
           if (!b && !confirm('Blokir pengguna ini? Ia tidak akan bisa menyimpan data lagi.')) return;
           if (b) { await F.remove(R('blokir/' + id)); delete C.blk[id]; }
-          else { await F.set(R('blokir/' + id), true); C.blk[id] = true; await simpanNama(id); }
+          else { await F.set(R('blokir/' + id), true); C.blk[id] = true; await simpanNama(id); try { await F.remove(R('leaderboard/' + id)); } catch (e) { } }
           toast(b ? 'Blokir dibuka' : 'Pengguna diblokir');
         }
         else if (a == 'adm') {
@@ -111,6 +139,7 @@
         else if (a == 'reset') {
           if (!confirm('Hapus semua progres belajar pengguna ini (materi selesai, hasil kuis, jadwal, waktu belajar)?')) return;
           await F.remove(R('users/' + id + '/progres'));
+          try { await F.remove(R('leaderboard/' + id)); } catch (e) { }
           if (C.users[id]) delete C.users[id].progres;
           toast('Progres direset');
         }
@@ -120,6 +149,8 @@
           await F.set(R('blokir/' + id), true);
           await F.remove(R('admins/' + id));
           await F.remove(R('users/' + id));
+          try { await F.remove(R('leaderboard/' + id)); } catch (e) { }
+          try { await F.remove(R('presence/' + id)); await F.remove(R('terakhir/' + id)); } catch (e) { }
           C.blk[id] = true;
           delete C.adm[id];
           delete C.users[id];

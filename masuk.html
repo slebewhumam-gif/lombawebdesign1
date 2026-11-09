@@ -3,13 +3,13 @@
 
 <head>
   <meta charset="utf-8">
-    <script src="js/tema.js"></script>
-    <script src="js/proteksi.js"></script>
-    <link rel="manifest" href="manifest.webmanifest">
-    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="EduSmart">
+  <script src="js/tema.js"></script>
+  <script src="js/proteksi.js"></script>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="EduSmart">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>Masuk – EduSmart</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap"
@@ -468,7 +468,8 @@
       text-decoration: none;
     }
 
-    html, body {
+    html,
+    body {
       -webkit-user-select: none;
       -moz-user-select: none;
       user-select: none;
@@ -850,7 +851,7 @@
       sessionStorage.removeItem('eduOtp'); PEND = null; try {
         await signOut(auth);
       }
-        catch (x) { } mode('log');
+      catch (x) { } mode('log');
     };
     $('pr').onsubmit = async function (e) {
       e.preventDefault();

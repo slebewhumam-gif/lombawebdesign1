@@ -215,6 +215,64 @@
           ".validate": false
         }
       }
+    },
+    "leaderboard": {
+      ".read": true,
+      ".indexOn": [
+        "poin"
+      ],
+      "$uid": {
+        ".write": "auth == null || (auth.uid === $uid && !root.child('blokir').child(auth.uid).exists() && !root.child('lbBan').child(auth.uid).exists())",
+        ".validate": "newData.hasChildren(['nama', 'poin'])",
+        "nama": {
+          ".validate": "newData.isString() && newData.val().length <= 60"
+        },
+        "poin": {
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10000000"
+        },
+        "materi": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "kuis": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "menit": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "$other": {
+          ".validate": false
+        },
+        "foto": {
+          ".validate": "newData.isString() && newData.val().length <= 100000 && newData.val().matches(/^data:image\\/jpeg;base64,/)"
+        },
+        "target": {
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10000000"
+        }
+      }
+    },
+    "lbBan": {
+      ".read": "auth == null",
+      "$uid": {
+        ".read": "auth == null || auth.uid === $uid",
+        ".validate": "newData.isBoolean()"
+      },
+      ".write": "auth == null"
+    },
+    "presence": {
+      ".read": "auth == null",
+      "$uid": {
+        ".write": "auth == null || auth.uid === $uid",
+        "$cid": {
+          ".validate": "newData.isBoolean()"
+        }
+      }
+    },
+    "terakhir": {
+      ".read": "auth == null",
+      "$uid": {
+        ".write": "auth == null || auth.uid === $uid",
+        ".validate": "newData.isNumber()"
+      }
     }
   }
 }

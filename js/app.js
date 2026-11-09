@@ -104,6 +104,32 @@ function gabung(a, b, pakaiNama) {
 }
 function ada(d) { return Object.keys(d.done).length || d.events.length || d.hasil.length || Object.keys(d.waktu).length; }
 function ambil() { return norm(S); }
+/* Poin keaktifan: materi selesai 50, tiap kuis 20 + bonus skor (maks 30), 1 poin per menit belajar, jadwal 5 (maks 20 jadwal). */
+function poinDari(d) {
+    var m = Object.keys(d.done).length,
+        h = d.hasil.slice(-50),
+        bonus = h.reduce(function (a, x) { return a + Math.round(x.skor / x.total * 30); }, 0),
+        mnt = Math.floor(Object.keys(d.waktu).reduce(function (a, k) { return a + d.waktu[k]; }, 0) / 60),
+        j = Math.min(d.events.length, 20);
+    return { poin: m * 50 + h.length * 20 + bonus + mnt + j * 5, materi: m, kuis: d.hasil.length, menit: mnt };
+}
+function dorongPapan() {
+    var c = CLOUD;
+    if (!c || !c.siap || !c.F || c.lbBan)
+        return Promise.resolve(false);
+    var p = poinDari(ambil());
+    c.errPapan = null;
+    var o = { nama: String(S.nama).slice(0, 60), poin: p.poin, materi: p.materi, kuis: p.kuis, menit: p.menit };
+    if (typeof FOTO == 'string' && FOTO)
+        o.foto = FOTO;
+    var tg = 0;
+    try { tg = parseInt(localStorage.getItem('eduTarget:' + c.uid), 10) || 0; } catch (e) { }
+    if (tg > 0)
+        o.target = tg;
+    return c.F.set(c.F.ref(c.F.db, 'leaderboard/' + c.uid), o)
+        .then(function () { return true; })
+        .catch(function (e) { c.errPapan = e; return false; });
+}
 function isi(o, nama) { var d = norm(o, nama); S.done = d.done; S.events = d.events; S.hasil = d.hasil; S.waktu = d.waktu; S.nama = d.nama; }
 function save() {
     setTimeout(function () { profilSb(); }, 0);
@@ -127,8 +153,32 @@ function dorong(sny) {
                 tulis(KEY + ':' + c.uid, d);
         })
         .catch(function () { if (!sny) toast('Gagal menyimpan. Coba lagi.'); });
+    dorongPapan();
 }
 addEventListener('online', function () { dorong(true); });
+function hadir(F, uid) {
+    var cr = F.ref(F.db, 'presence/' + uid), tr = F.ref(F.db, 'terakhir/' + uid), me = null;
+    function diam(f) { try { var p = f(); if (p && p.catch) p.catch(function () { }); } catch (e) { } }
+    F.onValue(F.ref(F.db, '.info/connected'), function (s) {
+        if (s.val() !== true)
+            return;
+        me = F.push(cr);
+        diam(function () { return F.onDisconnect(me).remove(); });
+        diam(function () { return F.onDisconnect(tr).set(F.serverTimestamp()); });
+        if (!document.hidden)
+            diam(function () { return F.set(me, true); });
+    });
+    document.addEventListener('visibilitychange', function () {
+        if (!me)
+            return;
+        if (document.hidden) {
+            diam(function () { return F.remove(me); });
+            diam(function () { return F.set(tr, F.serverTimestamp()); });
+        }
+        else
+            diam(function () { return F.set(me, true); });
+    });
+}
 async function cloud() {
     var F = await import('./fb.js'), u = await F.userSiap();
     if (!u) {
@@ -149,6 +199,7 @@ async function cloud() {
         });
     }
     catch (e) { }
+    try { hadir(F, u.uid); } catch (e) { }
     try {
         ADMIN = (await F.get(F.ref(F.db, 'admins/' + u.uid))).val() === true;
         if (ADMIN)
@@ -186,11 +237,20 @@ async function cloud() {
             h.waktu[k] = S.waktu[k];
     });
     isi(h);
+    try {
+        var tt = (await F.get(F.ref(F.db, 'leaderboard/' + u.uid + '/target'))).val();
+        if (+tt > 0 && !localStorage.getItem('eduTarget:' + u.uid))
+            localStorage.setItem('eduTarget:' + u.uid, String(Math.floor(+tt)));
+    }
+    catch (e) { }
+    try { c.lbBan = (await F.get(F.ref(F.db, 'lbBan/' + u.uid))).val() === true; } catch (e) { }
     c.siap = true;
     if (ubah)
         save();
-    else
+    else {
         tulis(ck, ambil());
+        dorongPapan();
+    }
     if (document.querySelector('.sb'))
         profilSb();
 }
@@ -242,6 +302,7 @@ var SIAP = (function () {
 })();
 function boot(fn) { BOOT.push(fn); }
 var IC = {
+    trophy: '<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/>',
     cap: '<path d="M22 10 12 5 2 10l10 5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/><path d="M22 10v6"/>',
     book: '<path d="M2 4h7a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H2z"/><path d="M22 4h-7a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h8z"/>',
     check: '<circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/>',
@@ -291,9 +352,10 @@ function setFoto(v) {
         }
         catch (e) { }
         profilSb();
+        dorongPapan();
     });
 }
-var cp = location.pathname.split('/').pop().replace('.html', '') || 'index', PI = { index: 'cap', dashboard: 'grid', materi: 'book', kuis: 'bolt', jadwal: 'cal', progres: 'bars', tentang: 'users' }, P2 = [['index', 'Beranda'], ['dashboard', 'Dashboard'], ['materi', 'Materi'], ['kuis', 'Kuis'], ['jadwal', 'Jadwal'], ['progres', 'Progres'], ['tentang', 'Tentang']];
+var cp = location.pathname.split('/').pop().replace('.html', '') || 'index', PI = { index: 'cap', dashboard: 'grid', materi: 'book', kuis: 'bolt', jadwal: 'cal', progres: 'bars', tentang: 'users', leaderboard: 'trophy' }, P2 = [['index', 'Beranda'], ['dashboard', 'Dashboard'], ['materi', 'Materi'], ['kuis', 'Kuis'], ['jadwal', 'Jadwal'], ['progres', 'Progres'], ['leaderboard', 'Peringkat'], ['tentang', 'Tentang']];
 document.body.classList.add('has-sb');
 document.body.insertAdjacentHTML('afterbegin', '<header class="tb"><button type="button" class="sb-tg" id="sbtg" aria-label="Buka menu" aria-expanded="false" aria-controls="sbx">' + ic('menu') + '</button><div class="tb-brand">' + ic('cap') + '<span>EduSmart</span></div><button type="button" class="sb-tg tb-tema" id="temat" aria-label="Ganti tema"></button><button type="button" class="sb-tg tb-fs" id="fsb" aria-label="Layar penuh" hidden>' + ic('expand') + '</button></header><div class="sb-bg" id="sbbg"></div><aside class="sb" id="sbx"><button type="button" class="sb-x" aria-label="Tutup menu">' + ic('x') + '</button><div class="brand">' + ic('cap') + '<span>EduSmart</span><button type="button" class="sb-tema" id="temab" aria-label="Ganti tema"></button></div><nav>' + P2.map(function (p) { return '<a href="' + p[0] + '.html"' + (p[0] == cp ? ' class="on"' : '') + '>' + ic(PI[p[0]]) + '<span>' + p[1] + '</span></a>'; }).join('') + '</nav></aside>');
 (function () {
@@ -369,26 +431,6 @@ function profilSb() {
     function halaman(u) {
         return u.pathname.replace(/\/index(\.html)?$/, '/').replace(/\.html$/, '').replace(/\/$/, '') + u.search;
     }
-    var raf = 0;
-    document.addEventListener('pointermove', function (e) {
-        var c = e.target.closest('.card,.tile,.mcard');
-        if (!c || raf)
-            return;
-        raf = requestAnimationFrame(function () { raf = 0; var r = c.getBoundingClientRect(); c.style.setProperty('--mx', e.clientX - r.left + 'px'); c.style.setProperty('--my', e.clientY - r.top + 'px'); });
-    });
-    function bersihGlow(c) { c.style.removeProperty('--mx'); c.style.removeProperty('--my'); }
-    document.addEventListener('pointerout', function (e) {
-        var c = e.target.closest && e.target.closest('.card,.tile,.mcard');
-        if (c && !c.contains(e.relatedTarget))
-            bersihGlow(c);
-    });
-    document.addEventListener('pointerup', function (e) {
-        if (e.pointerType != 'mouse')
-            document.querySelectorAll('.card,.tile,.mcard').forEach(bersihGlow);
-    });
-    document.addEventListener('pointercancel', function () {
-        document.querySelectorAll('.card,.tile,.mcard').forEach(bersihGlow);
-    });
     document.addEventListener('pointerdown', function (e) {
         var b = e.target.closest('.btn');
         if (!b)
@@ -667,8 +709,7 @@ function profilSb() {
     function gelap() { return document.documentElement.getAttribute('data-theme') == 'dark'; }
     function ikon() {
         var g = gelap(), a = $('temab'), t = $('temat');
-        if (a)
-            {
+        if (a) {
             a.innerHTML = ic(g ? 'sun' : 'moon');
             a.setAttribute('aria-label', g ? 'Mode terang' : 'Mode gelap');
         }

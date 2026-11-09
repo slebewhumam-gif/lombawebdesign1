@@ -29,6 +29,8 @@ function toast(m) {
 }
 
 var IC = {
+  trophy: '<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/>',
+  ban: '<circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/>',
   bars: '<path d="M5 21V10M12 21V4M19 21v-8"/>',
   grid: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
   x: '<path d="M6 6l12 12M18 6 6 18"/>',
@@ -143,6 +145,7 @@ var NAV = [
   ['materi', 'Materi', 'book'],
   ['kuis', 'Kuis', 'bolt'],
   ['pengguna', 'Pengguna', 'users'],
+  ['peringkat', 'Peringkat', 'trophy'],
   ['laporan', 'Laporan', 'bars']
 ];
 
@@ -220,18 +223,6 @@ function adminStart(o) {
     setTimeout(function () { location.href = a.href; }, 220);
   });
 
-  var raf = 0, SEL = '.card,.tile';
-  function bersih(c) { c.style.removeProperty('--mx'); c.style.removeProperty('--my'); }
-  document.addEventListener('pointermove', function (e) {
-    var c = e.target.closest && e.target.closest(SEL);
-    if (!c || raf) return;
-    raf = requestAnimationFrame(function () { raf = 0; var r = c.getBoundingClientRect(); c.style.setProperty('--mx', e.clientX - r.left + 'px'); c.style.setProperty('--my', e.clientY - r.top + 'px'); });
-  });
-  document.addEventListener('pointerout', function (e) {
-    var c = e.target.closest && e.target.closest(SEL);
-    if (c && !c.contains(e.relatedTarget)) bersih(c);
-  });
-  document.addEventListener('pointerup', function (e) { if (e.pointerType != 'mouse') document.querySelectorAll(SEL).forEach(bersih); });
   document.addEventListener('pointerdown', function (e) {
     var b = e.target.closest && e.target.closest('.btn');
     if (!b) return;
@@ -253,7 +244,7 @@ function adminStart(o) {
       var M = await Promise.all([import(G + 'firebase-app.js'), import(G + 'firebase-auth.js'), import(G + 'firebase-database.js'), import(new URL('../js/firebase-config.js', location.href).href)]);
       MOD = { app: M[0], auth: M[1], cfg: M[3].firebaseConfig };
       var app0 = M[0].initializeApp(M[3].firebaseConfig, 'admin'), auth = M[1].getAuth(app0);
-      F = { app: app0, auth: auth, db: M[2].getDatabase(app0), ref: M[2].ref, get: M[2].get, set: M[2].set, remove: M[2].remove };
+      F = { app: app0, auth: auth, db: M[2].getDatabase(app0), ref: M[2].ref, get: M[2].get, set: M[2].set, remove: M[2].remove, onValue: M[2].onValue };
       U = await new Promise(function (ok) { var off = M[1].onAuthStateChanged(auth, function (u) { off(); ok(u); }); });
     }
     catch (e) {

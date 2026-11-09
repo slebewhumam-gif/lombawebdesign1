@@ -17,36 +17,178 @@
         rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <style>
-        .pg-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-        .pg-head .lead { margin-bottom: 20px; }
-        .sumx { display: flex; align-items: center; gap: 24px; }
-        .sumx .big { line-height: 1; }
-        .sumx .msg { margin: 10px 0 16px; font-size: 14px; color: var(--mut); max-width: 300px; }
-        .sumx .donut { flex: none; width: 150px; height: 150px; }
-        .wk-top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 4px; }
-        .wk-top h2 { margin: 0; }
-        .wk-top b { font-size: 13px; color: var(--mut); font-weight: 600; }
-        .kt { margin-bottom: 14px; }
-        .kt:last-child { margin-bottom: 0; }
-        .kt-h { display: flex; justify-content: space-between; gap: 10px; font-size: 13.5px; margin-bottom: 6px; }
-        .kt-h span { color: var(--mut); font-weight: 600; }
-        .kt-b { height: 9px; border-radius: 99px; background: var(--soft); overflow: hidden; }
-        .kt-b i { display: block; height: 100%; width: 0; border-radius: 99px; background: linear-gradient(90deg, var(--pri2), var(--pri)); transition: width 1s cubic-bezier(.2, .8, .2, 1); }
-        .kt-b i.full { background: var(--ok); }
-        .tp { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); font-size: 14px; }
-        .tp:first-of-type { border-top: 0; }
-        .tp .ic { width: 22px; height: 22px; color: var(--ok); }
-        .tp.n { color: var(--mut); }
-        .tp.n .ic { color: #b3bccd; }
-        .tp div { flex: 1; min-width: 0; }
-        .tp b { display: block; font-weight: 700; }
-        .tp small { color: var(--mut); font-size: 12px; }
-        .tp time { font-size: 12px; color: var(--mut); white-space: nowrap; }
-        .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
-        .stats span { background: var(--soft); border-radius: 10px; padding: 6px 12px; font-size: 12.5px; color: var(--mut); font-weight: 600; }
-        .stats b { color: var(--tx); }
-        .bc em { font-style: normal; font-size: 11px; font-weight: 700; color: var(--tx); }
-        .pgx .card h2 { margin-bottom: 14px; }
+        .pg-head {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .pg-head .lead {
+            margin-bottom: 20px;
+        }
+
+        .sumx {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .sumx .big {
+            line-height: 1;
+        }
+
+        .sumx .msg {
+            margin: 10px 0 16px;
+            font-size: 14px;
+            color: var(--mut);
+            max-width: 300px;
+        }
+
+        .sumx .donut {
+            flex: none;
+            width: 150px;
+            height: 150px;
+        }
+
+        .wk-top {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 4px;
+        }
+
+        .wk-top h2 {
+            margin: 0;
+        }
+
+        .wk-top b {
+            font-size: 13px;
+            color: var(--mut);
+            font-weight: 600;
+        }
+
+        .kt {
+            margin-bottom: 14px;
+        }
+
+        .kt:last-child {
+            margin-bottom: 0;
+        }
+
+        .kt-h {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            font-size: 13.5px;
+            margin-bottom: 6px;
+        }
+
+        .kt-h span {
+            color: var(--mut);
+            font-weight: 600;
+        }
+
+        .kt-b {
+            height: 9px;
+            border-radius: 99px;
+            background: var(--soft);
+            overflow: hidden;
+        }
+
+        .kt-b i {
+            display: block;
+            height: 100%;
+            width: 0;
+            border-radius: 99px;
+            background: linear-gradient(90deg, var(--pri2), var(--pri));
+            transition: width 1s cubic-bezier(.2, .8, .2, 1);
+        }
+
+        .kt-b i.full {
+            background: var(--ok);
+        }
+
+        .tp {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-top: 1px solid var(--line);
+            font-size: 14px;
+        }
+
+        .tp:first-of-type {
+            border-top: 0;
+        }
+
+        .tp .ic {
+            width: 22px;
+            height: 22px;
+            color: var(--ok);
+        }
+
+        .tp.n {
+            color: var(--mut);
+        }
+
+        .tp.n .ic {
+            color: #b3bccd;
+        }
+
+        .tp div {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .tp b {
+            display: block;
+            font-weight: 700;
+        }
+
+        .tp small {
+            color: var(--mut);
+            font-size: 12px;
+        }
+
+        .tp time {
+            font-size: 12px;
+            color: var(--mut);
+            white-space: nowrap;
+        }
+
+        .stats {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+
+        .stats span {
+            background: var(--soft);
+            border-radius: 10px;
+            padding: 6px 12px;
+            font-size: 12.5px;
+            color: var(--mut);
+            font-weight: 600;
+        }
+
+        .stats b {
+            color: var(--tx);
+        }
+
+        .bc em {
+            font-style: normal;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--tx);
+        }
+
+        .pgx .card h2 {
+            margin-bottom: 14px;
+        }
     </style>
 </head>
 
@@ -64,10 +206,12 @@
                 <div><small>Materi selesai</small><b id="t1" data-count="0">0</b><small id="t1s"></small></div>
             </div>
             <div class="tile"><span class="ti" data-i="check"></span>
-                <div><small>Rata-rata kuis</small><b id="t2" data-count="0" data-suf="%">0</b><small id="t2s"></small></div>
+                <div><small>Rata-rata kuis</small><b id="t2" data-count="0" data-suf="%">0</b><small id="t2s"></small>
+                </div>
             </div>
             <div class="tile"><span class="ti" data-i="clock"></span>
-                <div><small>Waktu belajar</small><b id="t3" data-count="0" data-suf=" mnt">0</b><small>tercatat otomatis saat belajar</small></div>
+                <div><small>Waktu belajar</small><b id="t3" data-count="0" data-suf=" mnt">0</b><small>tercatat otomatis
+                        saat belajar</small></div>
             </div>
         </div>
 
