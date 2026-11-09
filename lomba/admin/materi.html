@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="utf-8">
+  <script src="./tema.js"></script>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#1b2a4a">
+  <title>Kelola Materi – EduSmart</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+
+<body>
+  <script src="./data.js"></script>
+  <script src="admin.js"></script>
+  <script>
+    var q = '', kt = 'semua', draft = [];
+
+    function init(b) {
+      var kats = KAT.slice();
+      A.materi.forEach(function (m) { if (kats.indexOf(m.kat) < 0) kats.push(m.kat); });
+      b.innerHTML =
+        '<section class="card"><div class="tb2"><div class="srch">' + ic('search') + '<input id="mq" placeholder="Cari materi..." aria-label="Cari materi"></div>' +
+        '<select id="mk2" aria-label="Kategori"><option value="semua">Semua Kategori</option>' + kats.map(function (k) { return '<option>' + esc(k) + '</option>'; }).join('') + '</select></div>' +
+        '<div class="tw"><table class="tbl"><thead><tr><th>Judul</th><th>Kategori</th><th>Durasi</th><th>Bab · Soal</th><th>Aksi</th></tr></thead><tbody id="rows"></tbody></table></div></section>';
+      $('mq').value = q;
+      $('mk2').value = kts(kats);
+      $('mq').oninput = function () { q = this.value; rows(); };
+      $('mk2').onchange = function () { kt = this.value; rows(); };
+      rows();
+    }
+    function kts(kats) { return kats.indexOf(kt) < 0 ? 'semua' : kt; }
+
+    function rows() {
+      var s = q.trim().toLowerCase(), h = '';
+      A.materi.forEach(function (m, i) {
+        if (kt != 'semua' && m.kat != kt) return;
+        if (s && m.judul.toLowerCase().indexOf(s) < 0) return;
+        h += '<tr><td><b>' + esc(m.judul) + '</b></td><td><span class="pill">' + esc(m.kat) + '</span></td><td>' + m.m + ' menit</td><td>' + m.bab.length + ' bab · ' + m.kuis.length + ' soal</td>' +
+          '<td class="ac"><button class="ib" data-me="edit" data-i="' + i + '" aria-label="Ubah materi">' + ic('pencil') + '</button>' +
+          '<button class="ib red" data-me="del" data-i="' + i + '" aria-label="Hapus materi">' + ic('trash') + '</button></td></tr>';
+      });
+      $('rows').innerHTML = h || '<tr><td colspan="5" class="empty">Materi tidak ditemukan.</td></tr>';
+    }
+
+    function babList() {
+      $('bl').innerHTML = draft.map(function (b, n) {
+        return '<div class="bb"><div class="bb-h"><b>Bab ' + (n + 1) + '</b>' + (draft.length > 1 ? '<button type="button" class="ib red" data-bx="' + n + '" aria-label="Hapus bab">' + ic('trash') + '</button>' : '') + '</div>' +
+          '<input class="mb-j" maxlength="120" placeholder="Judul bab"><textarea class="mb-t" rows="6" maxlength="20000" placeholder="Isi bab… (Enter = baris baru)"></textarea></div>';
+      }).join('');
+      document.querySelectorAll('.mb-j').forEach(function (e, n) { e.value = draft[n].j; });
+      document.querySelectorAll('.mb-t').forEach(function (e, n) { e.value = draft[n].t; });
+    }
+    function syncBab() {
+      var j = document.querySelectorAll('.mb-j'), t = document.querySelectorAll('.mb-t');
+      draft = draft.map(function (b, n) { return { j: j[n] ? j[n].value : b.j, t: t[n] ? t[n].value : b.t }; });
+    }
+    function materiModal(i) {
+      var baru = i < 0, m = baru ? { id: '', judul: '', kat: KAT[0], m: 10, bab: [{ j: '', t: '' }], kuis: [] } : A.materi[i],
+        kk = KAT.indexOf(m.kat) < 0 ? KAT.concat(m.kat) : KAT;
+      draft = m.bab.map(function (b) { return { j: b.j, t: b.t }; });
+      modal('<h2>' + (baru ? 'Tambah materi' : 'Ubah materi') + '</h2>' +
+        '<label for="mj">Judul materi</label><input id="mj" maxlength="80">' +
+        '<div class="row t0"><div style="flex:1;min-width:140px"><label for="mk">Kategori</label><select id="mk">' + kk.map(function (k) { return '<option>' + esc(k) + '</option>'; }).join('') + '</select></div>' +
+        '<div style="flex:1;min-width:120px"><label for="mm">Durasi (menit)</label><input id="mm" type="number" min="1" max="600"></div></div>' +
+        '<label>Bab</label><div id="bl"></div><button type="button" class="btn alt sm" data-ba="1">' + ic('plus') + ' Tambah bab</button>' +
+        '<p class="nt">Teks boleh memakai HTML sederhana seperti &lt;b&gt; atau &lt;code&gt;.</p>' +
+        '<div class="row"><button class="btn" data-ms="1" data-i="' + i + '">Simpan</button><button class="btn alt" data-mc="1">Batal</button></div>');
+      $('mj').value = m.judul;
+      $('mm').value = m.m;
+      $('mk').value = m.kat;
+      babList();
+    }
+    function idBaru(j) {
+      var d = j.toLowerCase().replace(/[^a-z0-9]+/g, '').slice(0, 12) || 'm' + Date.now().toString(36), id = d, n = 2;
+      while (A.materi.some(function (m) { return m.id == id; }))
+        id = d + n++;
+      return id;
+    }
+    async function simpanMateri(i) {
+      syncBab();
+      var j = $('mj').value.trim(), mm = parseInt($('mm').value, 10), bab = draft.map(function (b) { return { j: b.j.trim(), t: b.t.trim() }; });
+      if (!j) { toast('Judul materi wajib diisi.'); return; }
+      if (!(mm >= 1 && mm <= 600)) { toast('Durasi harus 1 sampai 600 menit.'); return; }
+      if (!bab.length || bab.some(function (b) { return !b.j || !b.t; })) { toast('Setiap bab perlu judul dan isi.'); return; }
+      if (i < 0)
+        A.materi.push({ id: idBaru(j), judul: j, kat: $('mk').value, m: mm, bab: bab, kuis: [] });
+      else {
+        var m = A.materi[i];
+        m.judul = j;
+        m.kat = $('mk').value;
+        m.m = mm;
+        m.bab = bab;
+      }
+      tutup();
+      await simpan('Materi disimpan');
+      init($('body'));
+    }
+
+    document.addEventListener('click', function (e) {
+      var t = e.target.closest('[data-me]');
+      if (t) {
+        var a = t.dataset.me;
+        if (a == 'add') materiModal(-1);
+        else if (a == 'edit') materiModal(+t.dataset.i);
+        else if (a == 'reset') resetSemua();
+        else if (a == 'del') {
+          if (A.materi.length < 2) { toast('Minimal harus ada satu materi.'); return; }
+          if (!confirm('Hapus materi ini beserta soal kuisnya?')) return;
+          A.materi.splice(+t.dataset.i, 1);
+          simpan('Materi dihapus').then(function () { init($('body')); });
+        }
+        return;
+      }
+      if (e.target.closest('[data-ms]')) { simpanMateri(+e.target.closest('[data-ms]').dataset.i); return; }
+      if (e.target.closest('[data-ba]')) { syncBab(); draft.push({ j: '', t: '' }); babList(); return; }
+      t = e.target.closest('[data-bx]');
+      if (t) { syncBab(); draft.splice(+t.dataset.bx, 1); babList(); }
+    });
+
+    adminStart({
+      page: 'materi', title: 'Kelola Materi', sub: 'Tambah, edit, dan kelola materi pembelajaran.',
+      actions: '<button class="btn alt" data-me="reset">Kembalikan ke bawaan</button><button class="btn" data-me="add">' + ic('plus') + ' Tambah Materi</button>',
+      init: init
+    });
+  </script>
+</body>
+
+</html>
