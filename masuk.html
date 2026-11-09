@@ -10,7 +10,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="EduSmart">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>login/register</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap"
     rel="stylesheet">
@@ -83,6 +83,7 @@
       bottom: -90px;
       border-radius: 50%;
       border: 40px solid rgba(255, 255, 255, .06);
+      pointer-events: none;
     }
 
     .logo {
@@ -419,7 +420,8 @@
       }
 
       .brand {
-        position: static;
+        position: relative;
+        z-index: 0;
         width: auto;
         padding: 22px;
       }
@@ -431,7 +433,8 @@
       }
 
       .forms {
-        position: static;
+        position: relative;
+        z-index: 3;
         width: auto;
         padding: 28px 22px;
       }
