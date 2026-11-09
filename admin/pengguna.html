@@ -13,7 +13,7 @@
 </head>
 
 <body>
-  <script src="./data.js"></script>
+  <script src="../js/data.js"></script>
   <script src="admin.js"></script>
   <script>
     var q = '', pr = 'semua';
@@ -149,7 +149,7 @@
       var n = $('bn').value.trim(), e = $('be').value.trim().toLowerCase(), p = $('bp').value, bt = $('bs');
       if (!n) { toast('Nama wajib diisi.'); return; }
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) { toast('Masukkan email yang valid.'); return; }
-      if (p.length < 6) { toast('Kata kunci minimal 6 karakter.'.replace('Kata kunci', 'Kata sandi')); return; }
+      if (p.length < 6) { toast('Kata sandi minimal 6 karakter.'); return; }
       bt.disabled = true;
       try {
         var app2;

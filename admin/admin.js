@@ -2,8 +2,6 @@
 var F, U, A, C = {}, MOD = {}, PAGE = null;
 var KAT = ['Teknologi', 'Sains', 'Sosial', 'Bahasa', 'Matematika'];
 
-var ADMIN_EMAIL = 'admin@edusmart.app', ADMIN_SANDI = 'ntlmk2EyulsA6u494bohwC8O';
-
 function $(i) { return document.getElementById(i); }
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 function iso(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
@@ -36,12 +34,9 @@ var IC = {
   x: '<path d="M6 6l12 12M18 6 6 18"/>',
   moon: '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',
   sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
-  home: '<path d="M3 11 12 3l9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
   doc: '<path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h7M9 17h7"/>',
   quiz: '<path d="M4 4h16v16H4z"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/>',
   users: '<circle cx="9" cy="8" r="3.5"/><path d="M2 21a7 7 0 0 1 14 0M17 4.5a3.5 3.5 0 0 1 0 7M22 21a6 6 0 0 0-4-5.6"/>',
-  chart: '<path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/>',
-  out: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/>',
   menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
   search: '<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
@@ -53,7 +48,6 @@ var IC = {
   clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
   user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
   check: '<circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/>',
-  chev: '<path d="m6 9 6 6 6-6"/>',
   cap: '<path d="M22 10 12 5 2 10l10 5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/><path d="M22 10v6"/>',
   login: '<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="m10 17-5-5 5-5M5 12h12"/>'
 };
@@ -256,7 +250,7 @@ function adminStart(o) {
     }
     try {
       var G = 'https://www.gstatic.com/firebasejs/10.12.2/';
-      var M = await Promise.all([import(G + 'firebase-app.js'), import(G + 'firebase-auth.js'), import(G + 'firebase-database.js'), import(new URL('./firebase-config.js', location.href).href)]);
+      var M = await Promise.all([import(G + 'firebase-app.js'), import(G + 'firebase-auth.js'), import(G + 'firebase-database.js'), import(new URL('../js/firebase-config.js', location.href).href)]);
       MOD = { app: M[0], auth: M[1], cfg: M[3].firebaseConfig };
       var app0 = M[0].initializeApp(M[3].firebaseConfig, 'admin'), auth = M[1].getAuth(app0);
       F = { app: app0, auth: auth, db: M[2].getDatabase(app0), ref: M[2].ref, get: M[2].get, set: M[2].set, remove: M[2].remove };
@@ -270,28 +264,8 @@ function adminStart(o) {
         tolak('Gagal memuat', 'Periksa koneksi internet, lalu muat ulang halaman.<br><small>Detail: ' + esc(String(e && e.message || e)) + '</small>');
       return;
     }
-    if (!U || U.email != ADMIN_EMAIL) {
-      try { U = (await MOD.auth.signInWithEmailAndPassword(F.auth, ADMIN_EMAIL, ADMIN_SANDI)).user; }
-      catch (e) {
-        var c = String(e && e.code || '');
-        try {
-          if (!/user-not-found|invalid-credential|invalid-login/.test(c)) throw e;
-          try { U = (await MOD.auth.createUserWithEmailAndPassword(F.auth, ADMIN_EMAIL, ADMIN_SANDI)).user; }
-          catch (e2) {
-            if (/email-already-in-use/.test(String(e2 && e2.code))) {
-              tolak('Sandi admin tidak cocok', 'Akun admin sudah ada di Firebase, tetapi sandinya berbeda dengan ADMIN_SANDI di admin/admin.js. Samakan sandinya, atau reset di Firebase Console → Authentication.');
-              return;
-            }
-            throw e2;
-          }
-        }
-        catch (e3) {
-          tolak(/operation-not-allowed|admin-restricted/.test(String(e3 && e3.code)) ? 'Aktifkan login Email/Password dulu' : 'Gagal masuk ke database',
-            /operation-not-allowed|admin-restricted/.test(String(e3 && e3.code)) ? 'Buka Firebase Console → Authentication → Sign-in method → Email/Password → Enable, lalu muat ulang halaman ini.' : 'Periksa koneksi internet, lalu muat ulang.<br><small>Detail: ' + esc(String(e3 && e3.code || '') + ' ' + String(e3 && e3.message || e3)) + '</small>');
-          return;
-        }
-      }
-    }
+    try { if (U) await MOD.auth.signOut(F.auth); } catch (e) { }
+    U = { uid: '', email: '' };
     mulai(o);
   })();
 }

@@ -122,7 +122,6 @@ html[data-theme="dark"] .bt i { background: #3a4668; }
 .hl span:last-child { text-align: right; color: var(--mut); font-weight: 600; }
 .pb { height: 8px; border-radius: 9px; background: var(--soft); overflow: hidden; }
 .pb i { display: block; height: 100%; width: 0; border-radius: 9px; background: linear-gradient(90deg, var(--pri2), var(--pri)); transition: width .9s cubic-bezier(.2, .8, .2, 1); }
-.nt { color: var(--mut); font-size: 12.5px; margin-top: 10px; }
 
 .md {
   position: fixed; inset: 0; z-index: 90;

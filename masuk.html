@@ -11,7 +11,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="EduSmart">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>login/register</title>
+  <title>Masuk – EduSmart</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap"
     rel="stylesheet">
   <style>
@@ -766,8 +766,8 @@
   <script type="module">
     import { emailjsConfig as X } from './js/emailjs-config.js';
     import { auth, db, ref, get, update, serverTimestamp, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, verifyPasswordResetCode, confirmPasswordReset, updateProfile, signOut, setPersistence, browserLocalPersistence, browserSessionPersistence } from './js/fb.js';
-    var BACK = location.href.split('#')[0] + '#masuk', PEND = null;
-    var M = { 'auth/email-already-in-use': 'Email sudah terdaftar.', 'auth/network-request-failed': 'Tidak ada koneksi internet.', 'timeout': 'Koneksi lambat. Coba lagi.' };
+    var BACK = location.origin + location.pathname + '#masuk', PEND = null;
+    var M = { 'auth/email-already-in-use': 'Email sudah terdaftar.', 'auth/network-request-failed': 'Tidak ada koneksi internet.', 'timeout': 'Koneksi lambat. Coba lagi.', 'auth/invalid-email': 'Format email tidak valid.', 'auth/too-many-requests': 'Terlalu banyak percobaan. Tunggu beberapa menit lalu coba lagi.', 'auth/operation-not-allowed': 'Login Email/Password belum diaktifkan di Firebase Console.' };
     function pesan(x, d) { return M[x.code] || d; }
     function batas(p, ms) {
       return new Promise(function (ok, no) {
@@ -953,20 +953,36 @@
       sibuk(b, false, 'Masuk');
     };
     $('fp').onclick = async function () {
-      var em = $('le').value.trim().toLowerCase(), t = this;
+      var em = $('le').value.trim().toLowerCase(), t = this, sukses = false;
       if (!OK.test(em))
         return err(1, 'Isi email yang terdaftar di kolom email dulu, lalu klik Lupa kata sandi.', ['le']);
       t.disabled = true;
+      var msg = 'Jika ' + em + ' terdaftar, tautan untuk membuat sandi baru sudah dikirim. Cek inbox dan folder spam.';
       try {
-        await batas(sendPasswordResetEmail(auth, em, { url: BACK }), 15000);
-        err(1, '');
-        info(1, 'Jika ' + em + ' terdaftar, tautan untuk membuat sandi baru sudah dikirim. Cek inbox dan folder spam.');
-        t.textContent = 'Kirim ulang tautan';
+        try {
+          await batas(sendPasswordResetEmail(auth, em, { url: BACK }), 15000);
+        }
+        catch (x) {
+          // alamat situs (mis. 127.0.0.1) belum ada di Authorized domains: kirim tanpa tautan kembali
+          if (!/continue-uri/.test(String(x && x.code)))
+            throw x;
+          await batas(sendPasswordResetEmail(auth, em), 15000);
+        }
+        sukses = true;
       }
       catch (x) {
-        err(1, pesan(x, 'Tautan reset tidak dapat dikirim saat ini.'));
+        var k = String(x && x.code || '');
+        if (k == 'auth/user-not-found')
+          sukses = true;
+        else
+          err(1, pesan(x, 'Tautan reset tidak dapat dikirim saat ini.' + (k ? ' (' + k + ')' : '')));
       }
-      setTimeout(function () { t.disabled = false; }, 30000);
+      if (sukses) {
+        err(1, '');
+        info(1, msg);
+        t.textContent = 'Kirim ulang tautan';
+      }
+      setTimeout(function () { t.disabled = false; }, sukses ? 30000 : 3000);
     };
     var KODE = '';
     (async function () {

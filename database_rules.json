@@ -1,31 +1,31 @@
 {
   "rules": {
     "admins": {
-      ".read": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@edusmart.app')",
+      ".read": "auth == null",
       "$uid": {
-        ".read": "auth != null && auth.uid === $uid",
-        ".write": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@edusmart.app')",
+        ".read": "auth == null || auth.uid === $uid",
         ".validate": "newData.isBoolean()"
-      }
+      },
+      ".write": "auth == null"
     },
     "blokir": {
-      ".read": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@edusmart.app')",
+      ".read": "auth == null",
       "$uid": {
-        ".read": "auth != null && auth.uid === $uid",
-        ".write": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@edusmart.app')",
+        ".read": "auth == null || auth.uid === $uid",
         ".validate": "newData.isBoolean()"
-      }
+      },
+      ".write": "auth == null"
     },
     "blokirNama": {
-      ".read": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@edusmart.app')",
+      ".read": "auth == null",
       "$uid": {
-        ".write": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@edusmart.app')",
         ".validate": "newData.isString() && newData.val().length <= 60"
-      }
+      },
+      ".write": "auth == null"
     },
     "konten": {
       ".read": true,
-      ".write": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@edusmart.app')",
+      ".write": "auth == null",
       "aktif": {
         ".validate": "newData.isBoolean()"
       },
@@ -109,7 +109,7 @@
       }
     },
     "statistik": {
-      ".read": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@edusmart.app')",
+      ".read": "auth == null",
       "harian": {
         "$t": {
           ".validate": "$t.matches(/^\\d{4}-\\d{2}-\\d{2}$/)",
@@ -137,10 +137,10 @@
       }
     },
     "users": {
-      ".read": "auth != null && (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@edusmart.app')",
+      ".read": "auth == null",
       "$uid": {
-        ".read": "auth != null && (auth.uid === $uid || (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@edusmart.app'))",
-        ".write": "auth != null && ((auth.uid === $uid && !root.child('blokir').child(auth.uid).exists()) || (root.child('admins').child(auth.uid).val() === true || auth.token.email === 'admin@edusmart.app'))",
+        ".read": "auth == null || auth.uid === $uid",
+        ".write": "auth == null || (auth.uid === $uid && !root.child('blokir').child(auth.uid).exists())",
         "nama": {
           ".validate": "newData.isString() && newData.val().length <= 60"
         },
