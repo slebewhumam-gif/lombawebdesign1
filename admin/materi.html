@@ -48,7 +48,7 @@
     function babList() {
       $('bl').innerHTML = draft.map(function (b, n) {
         return '<div class="bb"><div class="bb-h"><b>Bab ' + (n + 1) + '</b>' + (draft.length > 1 ? '<button type="button" class="ib red" data-bx="' + n + '" aria-label="Hapus bab">' + ic('trash') + '</button>' : '') + '</div>' +
-          '<input class="mb-j" maxlength="120" placeholder="Judul bab"><textarea class="mb-t" rows="6" maxlength="20000" placeholder="Isi bab… (Enter = baris baru)"></textarea></div>';
+          '<input class="mb-j" maxlength="120" placeholder="Judul bab"><textarea class="mb-t" rows="6" maxlength="20000" placeholder="Isi bab"></textarea></div>';
       }).join('');
       document.querySelectorAll('.mb-j').forEach(function (e, n) { e.value = draft[n].j; });
       document.querySelectorAll('.mb-t').forEach(function (e, n) { e.value = draft[n].t; });
@@ -59,18 +59,20 @@
     }
     function materiModal(i) {
       var baru = i < 0, m = baru ? { id: '', judul: '', kat: KAT[0], m: 10, bab: [{ j: '', t: '' }], kuis: [] } : A.materi[i],
-        kk = KAT.indexOf(m.kat) < 0 ? KAT.concat(m.kat) : KAT;
+        kk = KAT.slice();
+      A.materi.forEach(function (x) { if (kk.indexOf(x.kat) < 0) kk.push(x.kat); });
       draft = m.bab.map(function (b) { return { j: b.j, t: b.t }; });
       modal('<h2>' + (baru ? 'Tambah materi' : 'Ubah materi') + '</h2>' +
         '<label for="mj">Judul materi</label><input id="mj" maxlength="80">' +
-        '<div class="row t0"><div style="flex:1;min-width:140px"><label for="mk">Kategori</label><select id="mk">' + kk.map(function (k) { return '<option>' + esc(k) + '</option>'; }).join('') + '</select></div>' +
+        '<div class="row t0"><div style="flex:1;min-width:140px"><label for="mk">Kategori</label><select id="mk">' + kk.map(function (k) { return '<option>' + esc(k) + '</option>'; }).join('') + '<option value="__baru">+ Kategori baru…</option></select>' +
+        '<input id="mkn" maxlength="40" placeholder="Nama kategori baru" aria-label="Nama kategori baru" style="margin-top:8px" hidden></div>' +
         '<div style="flex:1;min-width:120px"><label for="mm">Durasi (menit)</label><input id="mm" type="number" min="1" max="600"></div></div>' +
         '<label>Bab</label><div id="bl"></div><button type="button" class="btn alt sm" data-ba="1">' + ic('plus') + ' Tambah bab</button>' +
-        '<p class="nt">Teks boleh memakai HTML sederhana seperti &lt;b&gt; atau &lt;code&gt;.</p>' +
         '<div class="row"><button class="btn" data-ms="1" data-i="' + i + '">Simpan</button><button class="btn alt" data-mc="1">Batal</button></div>');
       $('mj').value = m.judul;
       $('mm').value = m.m;
       $('mk').value = m.kat;
+      $('mk').onchange = function () { var b = this.value == '__baru'; $('mkn').hidden = !b; if (b) $('mkn').focus(); };
       babList();
     }
     function idBaru(j) {
@@ -82,15 +84,22 @@
     async function simpanMateri(i) {
       syncBab();
       var j = $('mj').value.trim(), mm = parseInt($('mm').value, 10), bab = draft.map(function (b) { return { j: b.j.trim(), t: b.t.trim() }; });
+      var kat = $('mk').value;
+      if (kat == '__baru') {
+        kat = $('mkn').value.trim().replace(/\s+/g, ' ');
+        if (!kat) { toast('Isi nama kategori baru.'); return; }
+        var sama = KAT.concat(A.materi.map(function (x) { return x.kat; })).filter(function (k) { return String(k).toLowerCase() == kat.toLowerCase(); })[0];
+        if (sama) kat = sama;
+      }
       if (!j) { toast('Judul materi wajib diisi.'); return; }
       if (!(mm >= 1 && mm <= 600)) { toast('Durasi harus 1 sampai 600 menit.'); return; }
       if (!bab.length || bab.some(function (b) { return !b.j || !b.t; })) { toast('Setiap bab perlu judul dan isi.'); return; }
       if (i < 0)
-        A.materi.push({ id: idBaru(j), judul: j, kat: $('mk').value, m: mm, bab: bab, kuis: [] });
+        A.materi.push({ id: idBaru(j), judul: j, kat: kat, m: mm, bab: bab, kuis: [] });
       else {
         var m = A.materi[i];
         m.judul = j;
-        m.kat = $('mk').value;
+        m.kat = kat;
         m.m = mm;
         m.bab = bab;
       }

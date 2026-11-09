@@ -30,6 +30,10 @@
         b.innerHTML = '<p class="empty">Gagal memuat data. Periksa koneksi dan pastikan aturan database sudah dipasang, lalu coba lagi.</p>';
         return;
       }
+      try { C.nm = (await F.get(R('blokirNama'))).val() || {}; } catch (e) { C.nm = {}; }
+      try { C.cache = JSON.parse(localStorage.getItem('adminNamaUser') || '{}') || {}; } catch (e) { C.cache = {}; }
+      Object.keys(C.users).forEach(function (id) { var n = (C.users[id] || {}).nama; if (n) C.cache[id] = n; });
+      try { localStorage.setItem('adminNamaUser', JSON.stringify(C.cache)); } catch (e) { }
       b.innerHTML =
         '<section class="card"><div class="tb2"><div class="srch">' + ic('search') + '<input id="uq" placeholder="Cari pengguna..." aria-label="Cari pengguna"></div>' +
         '<select id="pf" aria-label="Peran"><option value="semua">Semua Peran</option><option value="siswa">Siswa</option><option value="admin">Admin</option></select></div>' +
@@ -63,7 +67,7 @@
 
       var yatim = Object.keys(C.blk).filter(function (id) { return C.blk[id] === true && !C.users[id]; });
       $('uo').innerHTML = yatim.length ? '<h2 style="margin-top:22px">User terhapus (' + yatim.length + ')</h2>' + yatim.map(function (id) {
-        return '<div class="row t0" style="align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid var(--line)"><div><b>' + esc(id) + '</b><br><small class="mut">Data sudah dihapus dan akun diblokir.</small></div>' +
+        return '<div class="row t0" style="align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid var(--line)"><div><b>' + esc(C.nm[id] || C.cache[id] || 'Pengguna terhapus') + '</b><br><small class="mut">Diblokir</small></div>' +
           '<button class="btn alt sm" data-ua="pulih" data-id="' + id + '">Pulihkan akses</button></div>';
       }).join('') : '';
     }
@@ -81,13 +85,20 @@
         '<button class="btn alt sm" data-ua="reset" data-id="' + id + '">Reset progres</button><button class="btn sm" data-mc="1">Tutup</button></div>');
     }
 
+    async function simpanNama(id) {
+      var n = (C.users[id] || {}).nama || C.cache[id];
+      if (!n) return;
+      C.cache[id] = C.nm[id] = n;
+      try { localStorage.setItem('adminNamaUser', JSON.stringify(C.cache)); } catch (e) { }
+      try { await F.set(R('blokirNama/' + id), String(n).slice(0, 60)); } catch (e) { }
+    }
     async function aksiUser(a, id) {
       try {
         if (a == 'blok') {
           var b = C.blk[id] === true;
           if (!b && !confirm('Blokir pengguna ini? Ia tidak akan bisa menyimpan data lagi.')) return;
           if (b) { await F.remove(R('blokir/' + id)); delete C.blk[id]; }
-          else { await F.set(R('blokir/' + id), true); C.blk[id] = true; }
+          else { await F.set(R('blokir/' + id), true); C.blk[id] = true; await simpanNama(id); }
           toast(b ? 'Blokir dibuka' : 'Pengguna diblokir');
         }
         else if (a == 'adm') {
@@ -105,6 +116,7 @@
         }
         else if (a == 'hapus') {
           if (!confirm('Hapus user ini? Seluruh datanya dihapus dan akunnya diblokir sehingga tidak bisa dipakai lagi.\n\nCatatan: akun login di Firebase Authentication tidak ikut terhapus dari sini. Hapus manual di Console jika ingin benar-benar menghilangkannya.')) return;
+          await simpanNama(id);
           await F.set(R('blokir/' + id), true);
           await F.remove(R('admins/' + id));
           await F.remove(R('users/' + id));
@@ -116,7 +128,8 @@
         else if (a == 'pulih') {
           if (!confirm('Pulihkan akses akun ini? Ia bisa masuk dan menyimpan data lagi (mulai dari nol).')) return;
           await F.remove(R('blokir/' + id));
-          delete C.blk[id];
+          try { await F.remove(R('blokirNama/' + id)); } catch (e) { }
+          delete C.blk[id]; delete C.nm[id];
           toast('Akses dipulihkan');
         }
       }
@@ -126,7 +139,7 @@
     }
 
     function barumodal() {
-      modal('<h2>Tambah pengguna</h2><p class="mut">Akun langsung aktif dan bisa dipakai masuk tanpa verifikasi OTP.</p>' +
+      modal('<h2>Tambah pengguna</h2>' +
         '<label for="bn">Nama lengkap</label><input id="bn" maxlength="40">' +
         '<label for="be">Email</label><input id="be" type="email" autocomplete="off">' +
         '<label for="bp">Kata sandi (min. 6 karakter)</label><input id="bp" type="text" autocomplete="off">' +

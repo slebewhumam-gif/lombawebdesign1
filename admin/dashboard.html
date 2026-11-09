@@ -38,7 +38,6 @@
       var soal = A.umum.length + A.materi.reduce(function (a, m) { return a + m.kuis.length; }, 0);
       var hari = (st.harian || {})[iso(now)] || {};
 
-      /* Pengguna terdaftar kumulatif, 6 bulan terakhir */
       var BLN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'], L = [], V = [];
       for (var k = 5; k >= 0; k--) {
         var akhir = new Date(now.getFullYear(), now.getMonth() - k + 1, 1).getTime();
@@ -46,7 +45,6 @@
         V.push(ids.filter(function (id) { return !(+us[id].dibuat > 0) || +us[id].dibuat < akhir; }).length);
       }
 
-      /* Aktivitas terbaru dari data yang ada */
       var ev = [];
       ids.forEach(function (id) {
         var u = us[id] || {}, nm = esc(u.nama || u.email || 'Pengguna');
@@ -65,7 +63,7 @@
         stat('bars', 'Aktivitas Hari Ini', +hari.total || 0, (+hari.unik || 0) + ' pengunjung unik') +
         '</div>' +
         '<div class="gmain">' +
-        '<section class="card"><h2>Statistik Pengguna</h2>' + grafikGaris(L, V) + '<p class="nt">Jumlah pengguna terdaftar per akhir bulan.</p></section>' +
+        '<section class="card"><h2>Statistik Pengguna</h2>' + grafikGaris(L, V) + '</section>' +
         '<section class="card"><div class="hd"><h2>Aktivitas Terbaru</h2><a href="pengguna.html">Lihat Semua →</a></div>' +
         (ev.length ? '<ul class="act">' + ev.map(function (e) { return '<li><span class="ai">' + ic(e.i) + '</span><div><b>' + e.s + '</b><small>' + lalu(e.t) + '</small></div></li>'; }).join('') + '</ul>' : '<p class="empty">Belum ada aktivitas.</p>') +
         '</section></div>';

@@ -34,7 +34,7 @@
   <script>
     boot(function () {
       var bi = 0, KAT = ['Semua', 'Teknologi', 'Sains', 'Sosial', 'Bahasa', 'Matematika'], kat = 'Semua', q = '', cur, dlg = $('dlg');
-      function chips() { $('chips').innerHTML = KAT.map(function (k) { return '<button class="chip' + (k == kat ? ' on' : '') + '" data-k="' + k + '">' + k + '</button>'; }).join(''); }
+      function chips() { var L = KAT.slice(); W.materi.forEach(function (m) { if (L.indexOf(m.kat) < 0) L.push(m.kat); }); $('chips').innerHTML = L.map(function (k) { return '<button class="chip' + (k == kat ? ' on' : '') + '" data-k="' + String(k).replace(/"/g, '&quot;') + '">' + k + '</button>'; }).join(''); }
       function grid() {
         var a = W.materi.filter(function (m) { return (kat == 'Semua' || m.kat == kat) && m.judul.toLowerCase().indexOf(q) > -1; });
         $('gr').innerHTML = a.map(function (m) { var d = S.done[m.id]; return '<button class="mcard" data-id="' + m.id + '">' + cv(m, d ? '<span class="ck">' + ic('check') + '</span>' : '') + '<b>' + m.judul + '</b><small>' + m.kat + ' · ' + m.m + ' menit</small><span class="go">' + ic('arrow') + '</span></button>'; }).join('') || '<p class="empty">Materi tidak ditemukan.</p>';

@@ -6,7 +6,6 @@
     <title>Admin EduSmart</title>
     <meta http-equiv="refresh" content="0;url=admin/dashboard.html">
     <script>
-        /* Tautan lama admin.html#user dll. diarahkan ke halaman baru */
         var m = { user: 'pengguna', kuis: 'kuis', materi: 'materi', statistik: 'laporan' }, h = location.hash.slice(1);
         location.replace('admin/' + (m[h] || 'dashboard') + '.html');
     </script>

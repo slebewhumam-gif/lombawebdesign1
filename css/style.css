@@ -1116,7 +1116,6 @@ body.has-sb {
   opacity: .7;
 }
 
-/* ---- Drawer sidebar (mobile) ---- */
 .tb,
 .sb-bg,
 .sb-x {
@@ -1323,7 +1322,6 @@ body.has-sb {
   }
 }
 
-/* ---- Sidebar desktop: ramping (ikon) dan melebar saat kursor menempel ---- */
 @media(min-width:821px) {
   body.has-sb {
     padding-left: 120px;
@@ -2115,7 +2113,6 @@ a.pf-row:hover {
 }
 
 
-/* Tirai transisi antar halaman: lebih singkat */
 #cur.in {
   animation-duration: .35s;
 }
@@ -2126,7 +2123,6 @@ a.pf-row:hover {
 }
 
 
-/* ===== Transisi lebih cepat ===== */
 #cur.in { animation-duration: .22s; }
 #cur.out { animation-duration: .4s; animation-delay: 0s; }
 .boot :is(.lead, .card, .tile, .mcard, .art) {
@@ -2138,7 +2134,6 @@ a.pf-row:hover {
   animation-delay: calc(var(--i) * 40ms + 80ms);
 }
 
-/* ===== Sidebar ===== */
 .sb {
   background: linear-gradient(175deg, #3a5799 0%, #1f3160 42%, #131e3a 100%);
   box-shadow: 0 26px 56px rgba(15, 24, 48, .38), inset 0 1px 0 rgba(255, 255, 255, .16), inset 0 0 0 1px rgba(255, 255, 255, .05);
@@ -2362,7 +2357,6 @@ a.pf-row:hover {
   from { opacity: 0; transform: translateX(-16px); }
 }
 
-/* ===== Teks tidak bisa diblok/disalin (kolom isian tetap bisa) ===== */
 html, body {
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -2382,7 +2376,6 @@ img {
   user-drag: none;
 }
 
-/* ===== Hero art (beranda) ===== */
 .art {
   container-type: size;
   isolation: isolate;
@@ -2543,7 +2536,6 @@ img {
   50% { transform: scale(.45) rotate(45deg); opacity: .35; }
 }
 
-/* ===== Sembunyikan scrollbar (scroll tetap berfungsi) ===== */
 * {
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -2555,7 +2547,6 @@ img {
   height: 0;
 }
 
-/* ===== Tombol layar penuh (bar atas mobile) ===== */
 @media(max-width:820px) {
   .tb-fs {
     margin-left: auto;
@@ -2566,7 +2557,6 @@ img {
   }
 }
 
-/* ===== Sidebar: hanya daftar menu yang scroll; profil & progres tetap ===== */
 .sb nav {
   flex: 1 1 auto;
   min-height: 0;
@@ -2581,7 +2571,6 @@ img {
   flex: none;
 }
 
-/* ===== Tombol tema: di samping nama EduSmart (sidebar); di mobile ada di bar atas ===== */
 @media(max-width:820px) {
   .tb-tema {
     margin-left: auto;
@@ -2592,7 +2581,6 @@ img {
   }
 }
 
-/* Perpindahan tema yang halus */
 @media (prefers-reduced-motion: no-preference) {
 
   html.tr-tema *,
@@ -2602,7 +2590,6 @@ img {
   }
 }
 
-/* ===== Mode gelap: abu gelap netral, kontras lembut ===== */
 html[data-theme="dark"] {
   color-scheme: dark;
   --bg: #121316;
@@ -2741,7 +2728,6 @@ html[data-theme="dark"] .tb-tema {
   box-shadow: 0 6px 18px rgba(0, 0, 0, .45);
 }
 
-/* Hero art beranda */
 html[data-theme="dark"] .art {
   background:
     radial-gradient(60% 60% at 16% 10%, rgba(255, 255, 255, .1), transparent 62%),
@@ -2755,7 +2741,6 @@ html[data-theme="dark"] .art .fc .ic {
   color: #2d3556;
 }
 
-/* Sidebar: permukaan gelap, bukan blok biru terang */
 html[data-theme="dark"] .sb {
   background: linear-gradient(175deg, #232734 0%, #1a1d26 55%, #14161c 100%);
   box-shadow: 0 26px 56px rgba(0, 0, 0, .5), inset 0 1px 0 rgba(255, 255, 255, .07), inset 0 0 0 1px rgba(255, 255, 255, .05);
@@ -2815,7 +2800,6 @@ html[data-theme="dark"] .sbp u {
   }
 }
 
-/* Buku materi: kertas malam hangat (sepia gelap) */
 html[data-theme="dark"] .book {
   background: #1f1d1a;
   color: #e0dacb;
@@ -2878,7 +2862,6 @@ html[data-theme="dark"] .pg code {
   }
 }
 
-/* ===== Layar sentuh: hover tidak boleh menempel setelah ditekan ===== */
 @media (hover: none) {
   .card,
   .tile,
@@ -2974,7 +2957,6 @@ html[data-theme="dark"] .pg code {
   }
 }
 
-/* Tombol tema di samping "EduSmart" */
 .sb .brand .sb-tema {
   display: grid;
   place-items: center;

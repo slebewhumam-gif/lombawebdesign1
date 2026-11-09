@@ -66,7 +66,7 @@
         '<section class="card"><h2>Halaman paling sering dibuka</h2>' + (hal.length ? hal.map(function (x) {
           return '<div class="hl"><b>' + esc(NAMA[x[0]] || x[0]) + '</b><div class="pb"><i data-w="' + Math.round(x[1] / jum * 100) + '"></i></div><span>' + x[1] + '</span></div>';
         }).join('') : '<p class="empty">Belum ada data kunjungan.</p>') +
-        '<p class="nt">Kunjungan dihitung setiap halaman dibuka, sejak pencatatan ini dipasang. Kunjunganmu sendiri sebagai admin tidak dihitung.</p></section>';
+        '</section>';
       setTimeout(function () { grow(b); }, 60);
     }
 

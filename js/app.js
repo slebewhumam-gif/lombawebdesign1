@@ -194,12 +194,12 @@ async function cloud() {
     if (document.querySelector('.sb'))
         profilSb();
 }
-/* ---- Akun diblokir/dihapus admin: langsung keluar dan kembali ke halaman login ---- */
 async function terpental(F) {
+    var h = '1';
+    try { if (!(await F.get(F.ref(F.db, 'users/' + F.auth.currentUser.uid))).exists()) h = '2'; } catch (e) { }
     try { await F.signOut(F.auth); } catch (e) { }
-    location.replace('masuk.html?blokir=1');
+    location.replace('masuk.html?blokir=' + h);
 }
-/* ---- Konten materi & kuis yang diatur admin (disimpan di cache agar halaman tetap cepat) ---- */
 if (!W.base)
     W.base = { umum: W.umum, materi: W.materi };
 function bersihHtml(t) {
@@ -523,7 +523,6 @@ function profilSb() {
         jalan();
 })();
 
-/* ---- Pelacak waktu belajar realtime: hanya hitung saat halaman Materi (buku terbuka) atau Kuis aktif dipakai ---- */
 (function () {
     var HALAMAN = { materi: 1, kuis: 1 }, IDLE = 90000, akt = Date.now(), last = Date.now(), pecah = 0, sLokal = 0, sCloud = 0, siap = false;
     ['pointerdown', 'pointermove', 'keydown', 'scroll', 'touchstart', 'wheel'].forEach(function (e) {
@@ -579,7 +578,6 @@ function profilSb() {
     addEventListener('pagehide', tutup);
 })();
 
-/* ---- Tombol layar penuh (mobile). Layar penuh hilang saat pindah halaman, jadi masuk lagi di sentuhan berikutnya ---- */
 (function () {
     var btn = $('fsb'), el = document.documentElement, KF = 'eduFs', pergi = false;
     if (!btn)
@@ -665,7 +663,6 @@ function profilSb() {
     }
 })();
 
-/* ---- Mode gelap / terang ---- */
 (function () {
     function gelap() { return document.documentElement.getAttribute('data-theme') == 'dark'; }
     function ikon() {
@@ -693,7 +690,6 @@ function profilSb() {
     document.addEventListener('tema', ikon);
 })();
 
-/* ---- Statistik pengunjung + penyegaran konten dari database (di latar belakang) ---- */
 function jejak(hal) {
     if (!/^[a-z]{3,12}$/.test(hal) || hal == 'admin')
         return;

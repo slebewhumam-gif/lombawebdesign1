@@ -1,11 +1,7 @@
-/* ===== Inti panel admin EduSmart: layout, login otomatis, data konten, modal ===== */
 
 var F, U, A, C = {}, MOD = {}, PAGE = null;
 var KAT = ['Teknologi', 'Sains', 'Sosial', 'Bahasa', 'Matematika'];
 
-/* Panel ini terpisah dari situs pengguna dan tidak punya halaman login.
-   Ke database ia masuk diam-diam memakai akun admin di bawah (dibuat otomatis saat pertama dibuka).
-   Jika ADMIN_EMAIL diganti, ganti juga di database_rules.json. */
 var ADMIN_EMAIL = 'admin@edusmart.app', ADMIN_SANDI = 'ntlmk2EyulsA6u494bohwC8O';
 
 function $(i) { return document.getElementById(i); }
@@ -69,7 +65,6 @@ function grow(r) {
   });
 }
 
-/* ---------- Konten (materi & kuis) ---------- */
 function dasar(B) {
   function soal(s) { return { q: s[0], o: s[1].slice(), a: s[2] }; }
   return {
@@ -127,11 +122,9 @@ async function resetSemua() {
   if (PAGE && PAGE.init) PAGE.init($('body'));
 }
 
-/* ---------- Modal ---------- */
 function modal(h) { $('mb').innerHTML = h; $('md').hidden = false; document.body.style.overflow = 'hidden'; }
 function tutup() { $('md').hidden = true; document.body.style.overflow = ''; }
 
-/* ---------- Grafik garis (SVG) ---------- */
 function grafikGaris(L, V) {
   var w = 560, h = 250, pl = 46, pr = 16, pt = 14, pb = 32, mx = Math.max.apply(null, V.concat([4])), n = L.length;
   var steps = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000], st = steps.filter(function (s) { return s * 4 >= mx; })[0] || 100000, top = st * 4;
@@ -151,7 +144,6 @@ function grafikGaris(L, V) {
   return '<svg class="chart" viewBox="0 0 ' + w + ' ' + h + '" role="img">' + g + '<path class="ar" d="' + ar + '"/><path class="ln" d="' + p + '"/>' + dt + lb + '</svg>';
 }
 
-/* ---------- Kerangka halaman ---------- */
 var NAV = [
   ['dashboard', 'Dashboard', 'grid'],
   ['materi', 'Materi', 'book'],
@@ -187,7 +179,6 @@ function adminStart(o) {
   tirai.className = reduce ? '' : 'hold';
   addEventListener('pageshow', function (e) { if (e.persisted) tirai.className = ''; });
 
-  /* Sidebar / drawer */
   function buka(b) {
     sb.classList.toggle('open', b);
     bg.classList.toggle('on', b);
@@ -209,7 +200,6 @@ function adminStart(o) {
   matchMedia('(min-width:821px)').addEventListener('change', function (e) { if (e.matches) buka(false); });
   addEventListener('pageshow', function () { buka(false); });
 
-  /* Tema */
   function ikon() {
     var g = window.temaGelap && temaGelap();
     ['temab', 'temat'].forEach(function (id) {
@@ -225,7 +215,6 @@ function adminStart(o) {
   });
   document.addEventListener('keydown', function (e) { if (e.key == 'Escape' && !$('md').hidden) tutup(); });
 
-  /* Tirai antar halaman */
   document.addEventListener('click', function (e) {
     var a = e.target.closest && e.target.closest('a[href]');
     if (!a || e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || a.target || !/\.html(\?|$)/.test(a.getAttribute('href'))) return;
@@ -237,7 +226,6 @@ function adminStart(o) {
     setTimeout(function () { location.href = a.href; }, 220);
   });
 
-  /* Cahaya kartu mengikuti kursor + riak tombol */
   var raf = 0, SEL = '.card,.tile';
   function bersih(c) { c.style.removeProperty('--mx'); c.style.removeProperty('--my'); }
   document.addEventListener('pointermove', function (e) {
